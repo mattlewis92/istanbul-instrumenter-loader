@@ -1,9 +1,9 @@
 import webpack from './webpack';
-import { stripLocalPaths } from './helpers';
+import { stripLocalPaths, stripWebpackHashes } from './helpers';
 
 test('instrument code', async () => {
   const stats = await webpack();
-  const instrumentedSource = stripLocalPaths(stats.compilation.assets['main.js'].source());
+  const instrumentedSource = stripWebpackHashes(stripLocalPaths(stats.compilation.assets['main.js'].source()));
   expect(instrumentedSource).toMatchSnapshot();
 });
 
@@ -13,7 +13,7 @@ test('sourcemap files on by default', async () => {
       devtool: 'sourcemap',
     },
   });
-  const sourceMap = stats.compilation.assets['main.js.map'].source();
+  const sourceMap = stripWebpackHashes(stats.compilation.assets['main.js.map'].source());
   expect(sourceMap).toMatchSnapshot();
   expect(stats.compilation.errors).toMatchSnapshot('errors');
   expect(stats.compilation.warnings).toMatchSnapshot('warnings');
@@ -28,7 +28,7 @@ test('disabled sourcemaps', async () => {
       produceSourceMap: false,
     },
   });
-  const sourceMap = stats.compilation.assets['main.js.map'].source();
+  const sourceMap = stripWebpackHashes(stats.compilation.assets['main.js.map'].source());
   expect(sourceMap).toMatchSnapshot();
   expect(stats.compilation.errors).toMatchSnapshot('errors');
   expect(stats.compilation.warnings).toMatchSnapshot('warnings');
